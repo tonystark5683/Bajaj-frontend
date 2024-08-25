@@ -35,10 +35,20 @@ const InputForm = () => {
       // Print the response data to the console
       console.log("API Response:", response.data);
 
+      // Update the response data state
       setResponseData(response.data);
     } catch (err) {
-      setError("Invalid JSON input or API request failed");
-      console.error("Error:", err);  // Log error details to the console
+      if (err.response && err.response.data && err.response.data.detail) {
+        // Extract and format error details
+        const errorDetails = err.response.data.detail.map((error, index) => (
+          `Error ${index + 1}: Location - ${error.loc.join(', ')}, Message - ${error.msg}, Type - ${error.type}`
+        )).join('\n');
+
+        setError(`Request failed with status ${err.response.status}: ${errorDetails}`);
+      } else {
+        setError("Invalid JSON input or API request failed");
+      }
+      console.error("Error:", err.response || err);  // Log full error response
     }
   };
 
